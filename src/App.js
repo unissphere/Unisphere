@@ -1,53 +1,25 @@
-// Main App Component
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import LandingPage from './pages/LandingPage';
+import SocialConnector from './pages/SocialConnector';
+import Chatroom from './pages/Chatroom';
+import StudyAssistant from './pages/StudyAssistant';
+import UploadNotes from './pages/UploadNotes';
+import QuizPage from './pages/QuizPage';
 
-export default App;
-
-const App = () => {
-  const [currentPage, setCurrentPage] = useState('landing');
-  const [currentRoom, setCurrentRoom] = useState({ name: '', type: '' });
-
-  const navigateToSocial = () => {
-    setCurrentPage('social');
-  };
-
-  const navigateToStudyAssistant = () => {
-    setCurrentPage('study');
-  };
-
-  const navigateToHome = () => {
-    setCurrentPage('landing');
-  };
-
-  const navigateToChat = (roomName, roomType) => {
-    setCurrentRoom({ name: roomName, type: roomType });
-    setCurrentPage('chatroom');
-  };
-
-  const navigateBackToSocial = () => {
-    setCurrentPage('social');
-  };
-
+function App() {
   return (
-    <div>
-      {currentPage === 'landing' ? (
-        <LandingPage 
-          onNavigateToSocial={navigateToSocial} 
-          onNavigateToStudyAssistant={navigateToStudyAssistant} 
-        />
-      ) : currentPage === 'social' ? (
-        <SocialConnectorPage 
-          onBackToHome={navigateToHome} 
-          onNavigateToChat={navigateToChat}
-        />
-      ) : currentPage === 'chatroom' ? (
-        <ChatroomPage 
-          roomName={currentRoom.name}
-          roomType={currentRoom.type}
-          onBackToSocial={navigateBackToSocial}
-        />
-      ) : (
-        <StudyAssistantPage onBackToHome={navigateToHome} />
-      )}
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/social" element={<SocialConnector />} />
+        <Route path="/chat/:roomName/:roomType" element={<Chatroom />} />
+        <Route path="/study" element={<StudyAssistant />} />
+        <Route path="/study/upload-notes" element={<UploadNotes />} />
+        <Route path="/study/quiz" element={<QuizPage />} />
+      </Routes>
+    </Router>
   );
-};
+}
+
+export default App; 

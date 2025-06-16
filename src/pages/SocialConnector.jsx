@@ -1,5 +1,9 @@
-// Social Connector Page Component
-const SocialConnectorPage = ({ onBackToHome, onNavigateToChat }) => {
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+const SocialConnector = () => {
+  const navigate = useNavigate();
+  
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -116,7 +120,11 @@ const SocialConnectorPage = ({ onBackToHome, onNavigateToChat }) => {
   };
 
   const handleJoinRoom = (roomName, roomType) => {
-    onNavigateToChat(roomName, roomType);
+    navigate(`/chat/${encodeURIComponent(roomName)}/${encodeURIComponent(roomType)}`);
+  };
+
+  const handleBackToHome = () => {
+    navigate('/');
   };
 
   return (
@@ -138,7 +146,7 @@ const SocialConnectorPage = ({ onBackToHome, onNavigateToChat }) => {
             </h1>
           </div>
           <button 
-            onClick={onBackToHome}
+            onClick={handleBackToHome}
             className="text-red-500 hover:text-red-600 font-medium transition-colors"
           >
             ← go to dashboard
@@ -328,3 +336,5 @@ const SocialConnectorPage = ({ onBackToHome, onNavigateToChat }) => {
     </div>
   );
 };
+
+export default SocialConnector;
