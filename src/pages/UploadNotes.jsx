@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom'; 
 
 const UploadNotes = () => {
+  const navigate = useNavigate();
   const fileInputRef = useRef(null);
   
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -161,9 +163,9 @@ const UploadNotes = () => {
     }, 2000);
   };
 
+  
   const handleBackToStudy = () => {
-    // In a real app, you'd use navigate here
-    alert('Navigation would happen here in a real app');
+    navigate('/study');  
   };
 
   return (
