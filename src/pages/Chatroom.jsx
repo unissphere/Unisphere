@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 const Chatroom = () => {
   const { roomName, roomType } = useParams();
   const navigate = useNavigate();
+  const messagesEndRef = useRef(null);
   
-  const decodedRoomName = decodeURIComponent(roomName);
-  const decodedRoomType = decodeURIComponent(roomType);
+  // Handle undefined params
+  const decodedRoomName = roomName ? decodeURIComponent(roomName) : 'Unknown Room';
+  const decodedRoomType = roomType ? decodeURIComponent(roomType) : 'Unknown Type';
   
   const [messages, setMessages] = useState([
     {
@@ -34,16 +36,25 @@ const Chatroom = () => {
   const [newMessage, setNewMessage] = useState('');
   const [onlineUsers] = useState(['Ishi', 'Jiya', 'Sachi', 'You']);
 
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   const sendMessage = () => {
     if (newMessage.trim()) {
       const message = {
-        id: messages.length + 1,
+        id: Date.now(), // Use timestamp for unique ID
         sender: "You",
-        message: newMessage,
+        message: newMessage.trim(),
         timestamp: new Date(),
         isSystem: false
       };
-      setMessages([...messages, message]);
+      setMessages(prevMessages => [...prevMessages, message]);
       setNewMessage('');
     }
   };
@@ -57,6 +68,14 @@ const Chatroom = () => {
 
   const handleBackToSocial = () => {
     navigate('/social');
+  };
+
+  const formatTime = (timestamp) => {
+    try {
+      return timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch (error) {
+      return '00:00';
+    }
   };
 
   return (
@@ -96,9 +115,9 @@ const Chatroom = () => {
             <h3 className="text-xl font-semibold text-red-500 mb-4">Online ({onlineUsers.length})</h3>
             <div className="space-y-3">
               {onlineUsers.map((user, index) => (
-                <div key={index} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-red-50 transition-colors">
+                <div key={`user-${index}`} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-red-50 transition-colors">
                   <div className="w-8 h-8 bg-gradient-to-r from-red-400 to-red-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                    {user.charAt(0)}
+                    {user.charAt(0).toUpperCase()}
                   </div>
                   <div>
                     <p className="text-red-700 font-medium">{user}</p>
@@ -117,7 +136,7 @@ const Chatroom = () => {
             {/* Messages */}
             <div className="flex-1 p-6 overflow-y-auto space-y-4">
               {messages.map((msg) => (
-                <div key={msg.id} className={`flex ${msg.sender === 'You' ? 'justify-end' : 'justify-start'}`}>
+                <div key={`msg-${msg.id}`} className={`flex ${msg.sender === 'You' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
                     msg.isSystem 
                       ? 'bg-red-100 text-red-600 text-center text-sm'
@@ -128,15 +147,16 @@ const Chatroom = () => {
                     {!msg.isSystem && msg.sender !== 'You' && (
                       <p className="text-xs font-semibold mb-1 text-red-500">{msg.sender}</p>
                     )}
-                    <p>{msg.message}</p>
+                    <p className="break-words">{msg.message}</p>
                     <p className={`text-xs mt-1 ${
                       msg.isSystem ? 'text-red-400' : msg.sender === 'You' ? 'text-red-100' : 'text-red-400'
                     }`}>
-                      {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {formatTime(msg.timestamp)}
                     </p>
                   </div>
                 </div>
               ))}
+              <div ref={messagesEndRef} />
             </div>
 
             {/* Message Input */}
@@ -149,10 +169,12 @@ const Chatroom = () => {
                   placeholder="Type your message..."
                   className="flex-1 px-4 py-3 rounded-xl border border-red-200 bg-white/70 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-red-300 text-red-700 placeholder-red-400 resize-none"
                   rows="1"
+                  maxLength={500}
                 />
                 <button
                   onClick={sendMessage}
-                  className="px-6 py-3 bg-gradient-to-r from-red-400 to-red-500 text-white rounded-xl hover:from-red-500 hover:to-red-600 transition-all duration-300 transform hover:-translate-y-1 shadow-lg"
+                  disabled={!newMessage.trim()}
+                  className="px-6 py-3 bg-gradient-to-r from-red-400 to-red-500 text-white rounded-xl hover:from-red-500 hover:to-red-600 transition-all duration-300 transform hover:-translate-y-1 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   Send
                 </button>
