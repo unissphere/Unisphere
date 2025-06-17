@@ -1,2 +1,1 @@
-# Ignore env files with secrets
-backend/auth/.env
+backend/gauth/.env
